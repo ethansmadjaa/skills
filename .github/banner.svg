@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="1.15" r="0.75">
+      <stop offset="0" stop-color="#0000AA" stop-opacity="0.28"/>
+      <stop offset="0.55" stop-color="#0000AA" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#0000AA" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="frame"><rect width="960" height="240" rx="12"/></clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="960" height="240" fill="#ffffff"/>
+    <rect width="960" height="240" fill="url(#glow)"/>
+    <g stroke="#0000AA" stroke-opacity="0.07" stroke-width="22">
+      <line x1="480" y1="300" x2="-40" y2="60"/>
+      <line x1="480" y1="300" x2="160" y2="-20"/>
+      <line x1="480" y1="300" x2="480" y2="-40"/>
+      <line x1="480" y1="300" x2="800" y2="-20"/>
+      <line x1="480" y1="300" x2="1000" y2="60"/>
+    </g>
+    <rect x="0" y="0" width="960" height="52" fill="#ffffff"/>
+    <line x1="0" y1="52" x2="960" y2="52" stroke="#111111" stroke-width="1.5"/>
+    <text x="24" y="34" fill="#111111" font-size="20" font-weight="800" letter-spacing="-0.5">ES</text>
+    <text x="936" y="33" fill="#555555" font-size="13" text-anchor="end">ethansmadja.vercel.app</text>
+  </g>
+  <rect width="959" height="239" x="0.5" y="0.5" rx="12" fill="none" stroke="#111111" stroke-opacity="0.12"/>
+  <text x="24" y="112" fill="#111111" font-size="44" font-weight="800" letter-spacing="-1.5">skills</text>
+  <text x="24" y="140" fill="#444444" font-size="16">Ticket in, reviewed PR out. One flow, shared by Claude Code and Codex.</text>
+  <g font-size="13" font-weight="600">
+    <g transform="translate(24,172)">
+      <rect width="118" height="36" rx="6" fill="#EEEEFF" stroke="#0000AA" stroke-width="1"/>
+      <text x="59" y="23" text-anchor="middle" fill="#0000AA">start-ticket</text>
+    </g>
+    <text x="150" y="196" fill="#999999" font-size="15">→</text>
+    <g transform="translate(168,172)">
+      <rect width="104" height="36" rx="6" fill="#EEEEFF" stroke="#0000AA" stroke-width="1"/>
+      <text x="52" y="23" text-anchor="middle" fill="#0000AA">grill-form</text>
+    </g>
+    <text x="280" y="196" fill="#999999" font-size="15">→</text>
+    <g transform="translate(298,172)">
+      <rect width="116" height="36" rx="6" fill="#EEEEFF" stroke="#0000AA" stroke-width="1"/>
+      <text x="58" y="23" text-anchor="middle" fill="#0000AA">dual-review</text>
+    </g>
+    <text x="422" y="196" fill="#999999" font-size="15">→</text>
+    <g transform="translate(440,172)">
+      <rect width="84" height="36" rx="6" fill="#0000AA"/>
+      <text x="42" y="23" text-anchor="middle" fill="#ffffff" font-weight="700">ship</text>
+    </g>
+    <text x="532" y="196" fill="#999999" font-size="15">→</text>
+    <g transform="translate(550,172)">
+      <rect width="130" height="36" rx="6" fill="#EEEEFF" stroke="#0000AA" stroke-width="1"/>
+      <text x="65" y="23" text-anchor="middle" fill="#0000AA">senior-review</text>
+    </g>
+    <text x="688" y="196" fill="#999999" font-size="15">→</text>
+    <g transform="translate(706,172)">
+      <rect width="230" height="36" rx="6" fill="#EEEEFF" stroke="#0000AA" stroke-width="1"/>
+      <text x="115" y="23" text-anchor="middle" fill="#0000AA">addressing-pr-review-comments</text>
+    </g>
+  </g>
+</svg>

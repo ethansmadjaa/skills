@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="1.1" r="0.7">
+      <stop offset="0" stop-color="#0000AA" stop-opacity="0.30"/>
+      <stop offset="0.55" stop-color="#0000AA" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#0000AA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="640" fill="#ffffff"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+  <g stroke="#0000AA" stroke-opacity="0.07" stroke-width="34">
+    <line x1="640" y1="760" x2="-80" y2="140"/>
+    <line x1="640" y1="760" x2="220" y2="-60"/>
+    <line x1="640" y1="760" x2="640" y2="-80"/>
+    <line x1="640" y1="760" x2="1060" y2="-60"/>
+    <line x1="640" y1="760" x2="1360" y2="140"/>
+  </g>
+  <rect x="0" y="0" width="1280" height="88" fill="#ffffff"/>
+  <line x1="0" y1="88" x2="1280" y2="88" stroke="#111111" stroke-width="2"/>
+  <text x="64" y="57" fill="#111111" font-size="30" font-weight="800" letter-spacing="-0.5">ES</text>
+  <text x="1216" y="55" fill="#555555" font-size="20" text-anchor="end">github.com/ethansmadjaa/skills</text>
+  <text x="64" y="240" fill="#111111" font-size="112" font-weight="800" letter-spacing="-4">skills</text>
+  <text x="64" y="300" fill="#444444" font-size="30">Ticket in, reviewed PR out.</text>
+  <text x="64" y="342" fill="#444444" font-size="30">Agent skills for Claude Code and Codex.</text>
+  <g font-size="22" font-weight="600">
+    <g transform="translate(64,430)"><rect width="190" height="56" rx="10" fill="#EEEEFF" stroke="#0000AA" stroke-width="1.5"/><text x="95" y="36" text-anchor="middle" fill="#0000AA">start-ticket</text></g>
+    <text x="268" y="467" fill="#999999" font-size="26">→</text>
+    <g transform="translate(300,430)"><rect width="164" height="56" rx="10" fill="#EEEEFF" stroke="#0000AA" stroke-width="1.5"/><text x="82" y="36" text-anchor="middle" fill="#0000AA">grill-form</text></g>
+    <text x="478" y="467" fill="#999999" font-size="26">→</text>
+    <g transform="translate(510,430)"><rect width="186" height="56" rx="10" fill="#EEEEFF" stroke="#0000AA" stroke-width="1.5"/><text x="93" y="36" text-anchor="middle" fill="#0000AA">dual-review</text></g>
+    <text x="710" y="467" fill="#999999" font-size="26">→</text>
+    <g transform="translate(742,430)"><rect width="130" height="56" rx="10" fill="#0000AA"/><text x="65" y="36" text-anchor="middle" fill="#ffffff" font-weight="700">ship</text></g>
+    <text x="886" y="467" fill="#999999" font-size="26">→</text>
+    <g transform="translate(918,430)"><rect width="210" height="56" rx="10" fill="#EEEEFF" stroke="#0000AA" stroke-width="1.5"/><text x="105" y="36" text-anchor="middle" fill="#0000AA">senior-review</text></g>
+  </g>
+  <text x="64" y="560" fill="#0000AA" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">npx skills add ethansmadjaa/skills --global --all</text>
+</svg>
