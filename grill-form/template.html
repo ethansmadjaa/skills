@@ -1,0 +1,507 @@
+<!-- grill-form template — DO NOT edit or publish directly.
+     Run: python3 generate.py <config.json> <output.html>
+     The generator fills the title tag and the CONFIG constant; everything else
+     (CSS, rendering, persistence, copy logic) is fixed.
+     No <!doctype>/<html>/<head>/<body> — the Artifact publisher wraps the file.
+     No external resources (CSP blocks CDNs). -->
+<title>__TITLE__</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #21262b;
+    --muted: #68707a;
+    --accent: #0e7a6e;
+    --accent-ink: #0a5a51;
+    --line: #e3e5e0;
+    --chip-bg: #edf5f3;
+    --reco-bg: #f2f8f6;
+    --code-bg: #f0f1ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171b;
+      --surface: #1c2026;
+      --ink: #e6e8ea;
+      --muted: #98a0a9;
+      --accent: #34c4b4;
+      --accent-ink: #6adacb;
+      --line: #2b3138;
+      --chip-bg: #1e2e2b;
+      --reco-bg: #1b2825;
+      --code-bg: #242930;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171b;
+    --surface: #1c2026;
+    --ink: #e6e8ea;
+    --muted: #98a0a9;
+    --accent: #34c4b4;
+    --accent-ink: #6adacb;
+    --line: #2b3138;
+    --chip-bg: #1e2e2b;
+    --reco-bg: #1b2825;
+    --code-bg: #242930;
+  }
+  :root[data-theme="light"] {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #21262b;
+    --muted: #68707a;
+    --accent: #0e7a6e;
+    --accent-ink: #0a5a51;
+    --line: #e3e5e0;
+    --chip-bg: #edf5f3;
+    --reco-bg: #f2f8f6;
+    --code-bg: #f0f1ee;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font:
+      16px/1.55 -apple-system,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
+    margin: 0;
+    padding: 2.5rem 1.25rem 6rem;
+  }
+  main {
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+  }
+  h1 {
+    font-size: 1.55rem;
+    line-height: 1.25;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .lede {
+    color: var(--muted);
+    margin: 0 0 2.2rem;
+    font-size: 0.95rem;
+  }
+  .lede code,
+  .q-body code,
+  .reco code,
+  label code {
+    font:
+      0.86em ui-monospace,
+      "SF Mono",
+      Menlo,
+      monospace;
+    background: var(--code-bg);
+    padding: 0.08em 0.35em;
+    border-radius: 4px;
+  }
+
+  .question {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem 1.5rem;
+    margin-bottom: 1.6rem;
+  }
+  .q-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.6rem;
+  }
+  .q-num {
+    font:
+      600 0.78rem ui-monospace,
+      "SF Mono",
+      Menlo,
+      monospace;
+    color: var(--accent);
+    background: var(--chip-bg);
+    border: 1px dashed var(--accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .q-title {
+    font-size: 1.08rem;
+    font-weight: 650;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .q-body {
+    margin: 0 0 0.9rem;
+    font-size: 0.93rem;
+    color: var(--ink);
+  }
+  .q-body p {
+    margin: 0 0 0.6rem;
+  }
+  .q-body ul,
+  .reco ul {
+    margin: 0 0 0.6rem;
+    padding-left: 1.25rem;
+  }
+  .q-body li,
+  .reco li {
+    margin: 0.3rem 0;
+  }
+
+  .reco {
+    background: var(--reco-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 7px 7px 0;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
+    margin: 0 0 1.1rem;
+  }
+  .reco strong:first-child {
+    color: var(--accent-ink);
+  }
+
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0 0 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  legend {
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 0.45rem;
+    padding: 0;
+  }
+  .opt {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    transition: border-color 0.12s;
+  }
+  .opt:hover {
+    border-color: var(--accent);
+  }
+  .opt:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--chip-bg);
+  }
+  .opt input {
+    margin-top: 0.22rem;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .opt .tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-left: 0.35rem;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 3.2rem;
+    resize: vertical;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 0.55rem 0.7rem;
+    font: 0.9rem/1.5 inherit;
+    font-family: inherit;
+  }
+  textarea:focus,
+  .opt input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .notes-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .actionbar {
+    position: sticky;
+    bottom: 0;
+    margin-top: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.9rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 -4px 24px rgb(0 0 0 / 0.06);
+  }
+  button.copy {
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    font: 600 0.95rem inherit;
+    font-family: inherit;
+    padding: 0.65rem 1.3rem;
+    cursor: pointer;
+  }
+  :root[data-theme="dark"] button.copy,
+  [data-theme="dark"] button.copy {
+    color: #10201d;
+  }
+  @media (prefers-color-scheme: dark) {
+    button.copy {
+      color: #10201d;
+    }
+  }
+  button.copy:hover {
+    filter: brightness(1.08);
+  }
+  button.copy:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+  .status {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .status.ok {
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+  .hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+</style>
+
+<main>
+  <p class="eyebrow" id="eyebrow"></p>
+  <h1 id="heading"></h1>
+  <p class="lede" id="lede"></p>
+
+  <div id="questions"></div>
+
+  <div class="actionbar">
+    <button class="copy" id="copyBtn" type="button">
+      Copier le prompt agent
+    </button>
+    <span class="status" id="status"></span>
+    <span class="hint">Réponses conservées dans ce navigateur</span>
+  </div>
+</main>
+
+<script>
+  // Injected by generate.py — { title, eyebrow, heading, lede, storeKey,
+  // promptTitle, promptContext, questions: [{ id, title, body, reco,
+  // multi?: true, options: [{ v, label, reco?: true }] }] }
+  const CONFIG = "__CONFIG_JSON__";
+
+  const QUESTIONS = CONFIG.questions;
+  const STORE_KEY = CONFIG.storeKey;
+
+  // Mini-markdown: escape HTML, then `code`, **bold**; block() adds "- " bullets + paragraphs.
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function inline(s) {
+    return escapeHtml(s)
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  }
+  function block(s) {
+    let html = "";
+    let bullets = [];
+    const flush = () => {
+      if (bullets.length) {
+        html += "<ul>" + bullets.join("") + "</ul>";
+        bullets = [];
+      }
+    };
+    for (const raw of s.split("\n")) {
+      const line = raw.trim();
+      if (!line) {
+        flush();
+        continue;
+      }
+      if (line.startsWith("- ")) {
+        bullets.push("<li>" + inline(line.slice(2)) + "</li>");
+        continue;
+      }
+      flush();
+      html += "<p>" + inline(line) + "</p>";
+    }
+    flush();
+    return html;
+  }
+
+  document.getElementById("eyebrow").textContent = CONFIG.eyebrow;
+  document.getElementById("heading").textContent = CONFIG.heading;
+  document.getElementById("lede").innerHTML = inline(CONFIG.lede).replace(
+    /\n/g,
+    "<br>",
+  );
+
+  const container = document.getElementById("questions");
+  const statusEl = document.getElementById("status");
+
+  function load() {
+    try {
+      return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
+    } catch {
+      return {};
+    }
+  }
+  function save(state) {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  }
+  let state = load();
+
+  // A multi question stores an array of values; a radio one stores a single value or null.
+  function isPicked(q, v) {
+    const choice = state[q.id]?.choice;
+    return q.multi ? Array.isArray(choice) && choice.includes(v) : choice === v;
+  }
+
+  for (const q of QUESTIONS) {
+    const card = document.createElement("section");
+    card.className = "question";
+    const inputType = q.multi ? "checkbox" : "radio";
+
+    const opts = q.options
+      .map(
+        (o) => `
+    <label class="opt">
+      <input type="${inputType}" name="${q.id}" value="${o.v}" ${isPicked(q, o.v) ? "checked" : ""}>
+      <span>${inline(o.label)}${o.reco ? '<span class="tag">reco</span>' : ""}</span>
+    </label>`,
+      )
+      .join("");
+
+    card.innerHTML = `
+    <div class="q-head">
+      <span class="q-num">${q.id}</span>
+      <h2 class="q-title">${q.title}</h2>
+    </div>
+    <div class="q-body">${block(q.body)}</div>
+    <div class="reco"><strong>➡️ Reco —</strong> ${block(q.reco)}</div>
+    <fieldset>
+      <legend>Ta réponse</legend>
+      ${opts}
+      <label class="opt">
+        <input type="${inputType}" name="${q.id}" value="__other__" ${isPicked(q, "__other__") ? "checked" : ""}>
+        <span>Autre (détailler en note)</span>
+      </label>
+    </fieldset>
+    <label class="notes-label" for="${q.id}-notes">Note / nuance (optionnel)</label>
+    <textarea id="${q.id}-notes" placeholder="Précisions, conditions, désaccords partiels…">${state[q.id]?.notes || ""}</textarea>
+  `;
+    container.appendChild(card);
+  }
+
+  function refresh() {
+    state = {};
+    let answered = 0;
+    for (const q of QUESTIONS) {
+      const checked = [
+        ...document.querySelectorAll(`input[name="${q.id}"]:checked`),
+      ].map((i) => i.value);
+      const notes = document.getElementById(`${q.id}-notes`).value.trim();
+      state[q.id] = {
+        choice: q.multi ? checked : (checked[0] ?? null),
+        notes,
+      };
+      if (checked.length || notes) answered++;
+    }
+    save(state);
+    statusEl.textContent = `${answered} / ${QUESTIONS.length} répondues`;
+    statusEl.className = "status";
+    return answered;
+  }
+  container.addEventListener("input", refresh);
+  refresh();
+
+  function labelFor(q, choice) {
+    if (choice === "__other__") return "Autre (voir note)";
+    const o = q.options.find((o) => o.v === choice);
+    return o ? o.label + (o.reco ? " (la reco)" : "") : "";
+  }
+
+  // Config order, because the checked inputs are read in DOM order.
+  function answerFor(q, choice) {
+    const picks = Array.isArray(choice) ? choice : choice ? [choice] : [];
+    return picks
+      .map((c) => labelFor(q, c))
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  // Minimal : réponses + notes seulement. L'agent qui reprend tient les
+  // questions et les recos déjà (session d'origine ou ticket).
+  function buildPrompt() {
+    const lines = [CONFIG.promptTitle, "", CONFIG.promptContext, ""];
+    for (const q of QUESTIONS) {
+      const a = state[q.id] || {};
+      const answer = answerFor(q, a.choice);
+
+      // Sans option cochée, la note EST la réponse.
+      if (!answer) {
+        lines.push(
+          `- ${q.id} (${q.title}): ${a.notes || "— pas de choix coché —"}`,
+        );
+        continue;
+      }
+
+      lines.push(`- ${q.id} (${q.title}): ${answer}`);
+      if (a.notes) lines.push(`  Note: ${a.notes}`);
+    }
+    return lines.join("\n");
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    refresh();
+    const text = buildPrompt();
+    try {
+      await navigator.clipboard.writeText(text);
+      statusEl.textContent = "Prompt copié ✓";
+      statusEl.className = "status ok";
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      statusEl.textContent = "Prompt copié ✓";
+      statusEl.className = "status ok";
+    }
+  });
+</script>
