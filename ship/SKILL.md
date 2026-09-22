@@ -1,6 +1,6 @@
 ---
 name: ship
-description: "Run the end-of-task delivery flow on explicit '/ship', 'ship it', or a request to prepare commits, publish a PR and follow CI/reviews. Review and test the final change, present the exact lot for approval, then commit and push it. Never trigger automatically when coding ends."
+description: "Run the end-of-task delivery flow on explicit '/ship', 'ship it', or a request to prepare commits, publish a PR and follow CI/reviews. Review and test the final change, present the exact lot for approval, then commit and push it. `/ship fast` or 'ship fast' skips the pre-push reviews. Never trigger automatically when coding ends."
 ---
 
 # Ship
@@ -8,6 +8,12 @@ description: "Run the end-of-task delivery flow on explicit '/ship', 'ship it', 
 Own preparation and execution; the user controls what gets published. A bare `/ship` starts preparation. By default, obtain approval of the concrete final lot before creating commits or pushing. Honor explicit session authorization already covering that exact lot; do not ask twice. Approval never extends to materially different follow-up changes.
 
 Apply authorized corrections directly in the working tree and test them. Do not hand the user a patch to apply or make patch-file review a prerequisite. The approval is for publishing the finished lot: summarize the behavior, affected files, proposed commits and checks; link the existing diff only when useful. Local snapshot bookkeeping stays internal.
+
+## Fast mode
+
+Only on the user's word: `/ship fast`, "ship fast", "sans review". Never choose it yourself, never infer it from the topic, the ticket or the diff size, and never suggest it to save time.
+
+Fast mode skips Prepare steps 3 and 4 (both isolated reviews and the verification of their findings) and the `verify-this` comparison in step 5. Everything else stays: scope separation (steps 1 and 2), the repository's required checks, the approval summary, the publication rules and Follow through, including CI and review comments on the PR. The approval summary and the PR body's `How to test` both say `fast mode: no pre-push review`.
 
 ## Prepare
 
