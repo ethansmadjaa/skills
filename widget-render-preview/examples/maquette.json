@@ -1,0 +1,33 @@
+[
+  { "role": "assistant", "text": "Bonjour ! Je peux t'aider à choisir ?" },
+  { "role": "user", "text": "je cherche une routine pour cheveux secs" },
+  {
+    "role": "assistant",
+    "blocks": [
+      { "kind": "prose", "text": "À chaque lavage, commence par un shampoing doux." },
+      {
+        "kind": "cards",
+        "recommendations": [
+          {
+            "handle": "shampoing-doux",
+            "title": "Shampoing doux",
+            "price": "18,00 €",
+            "reason": "Il nettoie sans dessécher les longueurs.",
+            "variantTitle": "250 ML",
+            "imageUrl": "https://placehold.co/400x400?text=Shampoing"
+          }
+        ]
+      },
+      { "kind": "prose", "text": "Une fois par semaine, ajoute un masque nourrissant." },
+      {
+        "kind": "cards",
+        "recommendations": [
+          { "handle": "masque-nourrissant", "title": "Masque nourrissant", "price": "24,00 €", "imageUrl": "https://placehold.co/400x400?text=Masque" },
+          { "handle": "huile-legere", "title": "Huile légère", "price": "21,00 €", "imageUrl": "https://placehold.co/400x400?text=Huile" }
+        ]
+      },
+      { "kind": "links", "links": [{ "label": "Guide des routines", "url": "https://example.com/pages/routines" }] },
+      { "kind": "prose", "text": "Tu veux commencer par le shampoing ?" }
+    ]
+  }
+]
