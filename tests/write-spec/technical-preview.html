@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pièces jointes PDF — aperçu de la spec technique</title>
+<style>
+:root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #202b38; background: #f5f6f8; }
+* { box-sizing: border-box; }
+body { margin: 0; font-size: 16px; line-height: 1.65; }
+main { max-width: 1040px; margin: 48px auto; padding: 52px 60px; background: white; border: 1px solid #dfe3e8; border-radius: 12px; }
+h1 { max-width: 760px; margin: 0 0 24px; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.2; letter-spacing: -.035em; color: #162538; }
+h2 { margin: 38px 0 16px; padding-top: 18px; border-top: 1px solid #dfe3e8; font-size: 1.25rem; line-height: 1.4; color: #162538; }
+p { margin: 14px 0; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .87em; overflow-wrap: anywhere; }
+p code, td code { background: #f1f3f6; border-radius: 3px; padding: .12em .25em; }
+pre { padding: 16px; background: #f1f3f6; border: 1px solid #dfe3e8; border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; border: 1px solid #dfe3e8; border-radius: 6px; }
+.table-wrap:focus-visible { outline: 2px solid #245c83; outline-offset: 4px; }
+table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: .91rem; text-align: left; }
+th, td { padding: 11px 14px; vertical-align: top; border-bottom: 1px solid #dfe3e8; overflow-wrap: anywhere; }
+th { background: #f1f3f6; font-weight: 650; }
+tbody tr:last-child td { border-bottom: 0; }
+td:first-child { width: 31%; }
+ul { padding-left: 22px; }
+li { margin: 8px 0; }
+.technical-map { margin: 0; padding: 18px; background: #f7f9fb; border: 1px solid #dfe3e8; border-radius: 8px; }
+.connection { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, .8fr) minmax(0, 1fr); align-items: center; gap: 12px; margin: 10px 0; }
+.node { padding: 10px 12px; border: 1px solid #ccd8e3; background: white; border-radius: 5px; font-size: .86rem; line-height: 1.4; }
+.arrow { display: flex; flex-direction: column; align-items: center; text-align: center; color: #245c83; font-size: 1.5rem; line-height: 1.2; }
+.label { font-size: .73rem; line-height: 1.35; color: #394e60; }
+@media (max-width: 620px) {
+  body { font-size: 15px; }
+  main { margin: 0; padding: 28px 18px; border: 0; border-radius: 0; }
+  .technical-map { padding: 12px; }
+  .connection { grid-template-columns: 1fr; gap: 5px; padding: 12px 0; border-bottom: 1px solid #dfe3e8; }
+  .connection:last-child { border-bottom: 0; }
+  .node { text-align: center; }
+  .arrow { font-size: 0; }
+  .arrow::after { content: "↓"; font-size: 1.4rem; }
+  .label { font-size: .75rem; }
+}
+@media print {
+  @page { margin: 16mm; }
+  :root, body { background: white; color: black; }
+  body { font-size: 10pt; }
+  main { max-width: none; margin: 0; padding: 0; border: 0; }
+  h1 { font-size: 23pt; }
+  h2 { font-size: 13pt; margin-top: 22px; break-after: avoid; }
+  .technical-map, tr, li, pre { break-inside: avoid; }
+  .table-wrap { overflow: visible; }
+  table { min-width: 0; font-size: 9pt; }
+  th, td { padding: 7px; }
+  .connection { grid-template-columns: minmax(0, 1fr) minmax(90px, .8fr) minmax(0, 1fr); gap: 12px; padding: 0; border: 0; }
+  .arrow { font-size: 1.5rem; }
+  .arrow::after { content: none; }
+  .node { text-align: left; }
+}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Pièces jointes PDF — aperçu de la spec technique</h1></header>
+<p>Exemple fictif d’ajout de PDF à un dossier client. Les noms et chemins ci-dessous sont des propositions techniques, pas des éléments vérifiés dans un dépôt applicatif.</p>
+<section><h2>Vue d’ensemble</h2>
+<figure class="technical-map" aria-label="Flux entre le dashboard, l’API, PostgreSQL et le bucket S3 privé">
+<div class="connection"><span class="node">Dashboard · Dossier client</span><span class="arrow" aria-label="vers">→</span><span class="node">API · Pièces jointes</span></div>
+<div class="connection"><span class="node">API · Pièces jointes</span><span class="arrow" aria-label="vers">→</span><span class="node">PostgreSQL · Métadonnées</span></div>
+<div class="connection"><span class="node">API · Pièces jointes</span><span class="arrow" aria-label="vers">→</span><span class="node">Bucket S3 privé · Fichiers PDF</span></div>
+<div class="connection"><span class="node">API · Pièces jointes</span><span class="arrow"><span class="label">URL temporaire de téléchargement</span><span aria-label="vers">→</span></span><span class="node">Dashboard · Dossier client</span></div>
+<div class="connection"><span class="node">Dashboard · Dossier client</span><span class="arrow"><span class="label">Téléchargement</span><span aria-label="vers">→</span></span><span class="node">Bucket S3 privé · Fichiers PDF</span></div>
+</figure>
+<p><strong>Choix proposé :</strong> faire passer l’upload par l’API existante, qui contrôle l’accès et valide le fichier avant stockage.</p>
+</section>
+<section><h2>Ce qu’on ajoute ou modifie</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Élément"><table><thead><tr><th scope="col">Élément</th><th scope="col">Solution technique</th></tr></thead><tbody>
+<tr><td><strong>Écran existant</strong></td><td><code>/dashboard/clients/[clientId]</code> : ajouter une section « Pièces jointes ».</td></tr>
+<tr><td><strong>Nouveau composant</strong></td><td><code>frontend/dashboard/src/app/dashboard/clients/[clientId]/ClientAttachments.tsx</code> : sélection du PDF, liste et téléchargement.</td></tr>
+<tr><td><strong>Nouveau fichier de routes</strong></td><td><code>backend/api/src/routes/client-attachments.ts</code> : utilise la session et le contrôle d’accès au dossier existants.</td></tr>
+<tr><td><strong>Nouvelle table</strong></td><td><code>client_attachments</code> : conserve les métadonnées et le lien vers le dossier client.</td></tr>
+<tr><td><strong>Nouveau bucket privé</strong></td><td>Nom logique proposé : <code>ClientAttachmentsBucket</code>, déclaré dans <code>backend/api/infra/storage.ts</code>. Contient les PDF.</td></tr>
+</tbody></table></div>
+</section>
+<section><h2>Données enregistrées</h2>
+<p>Table <code>client_attachments</code> — champs obligatoires :</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Champ"><table><thead><tr><th scope="col">Champ</th><th scope="col">Type</th><th scope="col">Rôle</th></tr></thead><tbody>
+<tr><td><code>id</code></td><td><code>uuid</code></td><td>Identifiant de la pièce jointe</td></tr>
+<tr><td><code>client_id</code></td><td><code>uuid</code> → <code>clients.id</code></td><td>Dossier propriétaire</td></tr>
+<tr><td><code>display_name</code></td><td><code>text</code></td><td>Nom original affiché</td></tr>
+<tr><td><code>size_bytes</code></td><td><code>integer</code></td><td>Taille du fichier</td></tr>
+<tr><td><code>created_at</code></td><td><code>timestamptz</code></td><td>Date d’ajout</td></tr>
+</tbody></table></div>
+<p>Chemin du PDF dans le bucket :</p>
+<pre><code>organizations/{organizationId}/clients/{clientId}/attachments/{attachmentId}.pdf</code></pre>
+</section>
+<section><h2>Connexion front → back</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Route"><table><thead><tr><th scope="col">Route</th><th scope="col">Fonction</th></tr></thead><tbody>
+<tr><td><code>GET /clients/:clientId/attachments</code></td><td>Retourne la liste des métadonnées</td></tr>
+<tr><td><code>POST /clients/:clientId/attachments</code></td><td>Reçoit le PDF et son nom, retourne la pièce jointe créée</td></tr>
+<tr><td><code>GET /clients/:clientId/attachments/:attachmentId/download</code></td><td>Retourne une URL S3 temporaire</td></tr>
+</tbody></table></div>
+<p>Le front réutilise <strong><code>apiFetch</code></strong>. Le backend réutilise <strong><code>@aws-sdk/client-s3</code></strong> et <strong><code>@aws-sdk/s3-request-presigner</code></strong>. Le test propose <strong><code>pdf-lib</code></strong> pour analyser le PDF : c’est une nouvelle dépendance à évaluer.</p>
+</section>
+<section><h2>Règles structurantes</h2>
+<ul>
+<li>Contrôle de l’organisation sur chaque opération ; PDF de <strong>10 Mio maximum</strong>.</li>
+<li>Le fichier est enregistré dans S3, puis les métadonnées en base. Il apparaît dans la liste seulement après réussite des deux opérations.</li>
+<li>En cas d’échec d’insertion en base, tentative de nettoyage du fichier S3.</li>
+<li>Une erreur laisse le dossier utilisable et permet un nouvel essai manuel.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>
