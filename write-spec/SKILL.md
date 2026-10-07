@@ -23,13 +23,13 @@ Choose the smallest visual that answers the design question: a flow/sequence dia
 
 Then use compact tables to describe the affected layers. Omit layers the change does not touch:
 
-| Layer | Detail the reader needs |
-| --- | --- |
-| Screen and files | User-facing URL, component, and relevant paths; mark new paths as proposed. |
-| API | Method and route, purpose, essential request/response fields and types, handler location, and authorization boundary. |
-| Data | New table/collection or changed fields; principal fields with types, required/nullable status, keys, and relationships. Include indexes or migrations only when they shape the solution. |
-| Infrastructure | Resource kind and logical name, access model, object-key/file-path pattern, and what lives there versus in the database. |
-| Libraries and services | Existing dependency reused and its role; justify any proposed addition against existing capabilities. |
+| Layer                  | Detail the reader needs                                                                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Screen and files       | User-facing URL, component, and relevant paths; mark new paths as proposed.                                                                                                              |
+| API                    | Method and route, purpose, essential request/response fields and types, handler location, and authorization boundary.                                                                    |
+| Data                   | New table/collection or changed fields; principal fields with types, required/nullable status, keys, and relationships. Include indexes or migrations only when they shape the solution. |
+| Infrastructure         | Resource kind and logical name, access model, object-key/file-path pattern, and what lives there versus in the database.                                                                 |
+| Libraries and services | Existing dependency reused and its role; justify any proposed addition against existing capabilities.                                                                                    |
 
 The diagram explains connections; the tables explain contracts. Put each detail in one place. Choose names and interfaces concrete enough to review instead of deferring the entire architecture to planning. Existing physical resource names come from evidence; new resources get proposed logical names.
 
@@ -45,7 +45,7 @@ Keep one spec focused enough for one coherent implementation plan. If the discus
 
 ## 4. Check and deliver
 
-Use Markdown by default. For an HTML request, follow [references/html.md](references/html.md); both formats express the same design. Save to the user's requested location, otherwise the project's spec convention, otherwise `docs/specs/YYYY-MM-DD-<topic>-design.md` (or `.html`) using the current date. If file writing is unavailable, provide the document source in chat.
+Use Markdown by default. For an HTML request, follow [references/html.md](references/html.md); both formats express the same design. Save the spec in the issue tracker, never in the repository: a document attached to the ticket the work belongs to, through the tracker's connector, titled `<ticket ID> Spec: <topic>`. Revise that document rather than creating a second one. With no ticket named, ask which one. An HTML spec goes on the ticket as an attachment. If no tracker is reachable, provide the document source in chat.
 
 Read the saved document against the source decisions. It is ready for review when:
 
@@ -55,7 +55,7 @@ Read the saved document against the source decisions. It is ready for review whe
 - No contradictory or unresolved behavior is presented as decided.
 - Repeated prose and details that do not help assess the structure have been removed.
 
-Fix issues inline. A remaining product decision means **draft**, with the concrete question; otherwise use **ready for review**. Return the file link and a brief description. Incorporate subsequent feedback in the same document. User approval is distinct from review readiness.
+Fix issues inline. A remaining product decision means **draft**, with the concrete question; otherwise use **ready for review**. Return the document link and a brief description. Incorporate subsequent feedback in the same document. User approval is distinct from review readiness.
 
 Independent review is optional: when requested, give a fresh reviewer the spec and source decisions and ask for issues that could cause an incorrect plan. Resolve findings against the evidence.
 
