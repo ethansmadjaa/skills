@@ -96,6 +96,29 @@ class ShipStateTest(unittest.TestCase):
         self.assertEqual(before["reviews"][0]["body"], "Out-of-diff finding")
         self.assertEqual(before["conversation_comments"][0]["body"], "Pre-merge warning")
 
+    def test_summary_lists_open_threads_required_checks_and_bot_review_counts(self):
+        fixture = json.loads((Path(__file__).parent / "fixtures/pr-3620.json").read_text())
+        root = {"id": 7, "author": "coderabbitai[bot]", "body": "\n_Potential issue_\n\nSecond line"}
+        reply = {"id": 8, "author": "pr-author", "body": "Fixed"}
+        open_thread = {"id": "PRRT_open", "isResolved": False, "isOutdated": False, "path": "src/a.ts", "line": 12,
+                       "originalLine": 10, "comments": {"nodes": [root, reply]}}
+        snapshot = {"headRefOid": "abc123", "state": "OPEN", "reviewDecision": None,
+                    "required_checks": {"items": [{"name": "tests", "state": "IN_PROGRESS"}], "error": None},
+                    "threads": [*fixture["threads"], open_thread],
+                    "reviews": fixture["reviews"], "conversation_comments": fixture["conversation_comments"]}
+        self.assertEqual(state.summary(snapshot).splitlines(), [
+            "head abc123 state OPEN review none",
+            "required checks: 1",
+            "  tests: IN_PROGRESS",
+            "unresolved threads: 1",
+            "  PRRT_open src/a.ts:12 coderabbitai[bot]: _Potential issue_ (1 replies)",
+            "reviews: 4 (coderabbitai[bot] x3, pr-author x1)",
+            f"  {fixture['reviews'][0]['id']} coderabbitai[bot]: Actionable comments posted: 1",
+            "conversation_comments: 2 (tracker[bot] x1, coderabbitai[bot] x1)",
+        ])
+        snapshot["required_checks"] = {"items": None, "error": "no required checks reported"}
+        self.assertIn("required checks: unavailable (no required checks reported)", state.summary(snapshot))
+
     def test_head_race_is_an_error(self):
         pages = [{"data": {"repository": {"pullRequest": {"headRefOid": head}}}} for head in ("old", "new")]
         with patch.object(state, "run", return_value=subprocess.CompletedProcess([], 0, json.dumps(pages).encode())):

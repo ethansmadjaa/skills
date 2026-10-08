@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Read-only Git/PR snapshots as JSON. Change polling lives in pr-watch.sh."""
 import argparse
+from collections import Counter
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -140,6 +142,34 @@ def pr(repo, number):
     return result
 
 
+def summary(snapshot):
+    """Plain-text first read of a pr snapshot; full bodies stay in the JSON."""
+    lines = [f"head {snapshot['headRefOid']} state {snapshot['state']} review {snapshot['reviewDecision'] or 'none'}"]
+    required = snapshot["required_checks"]
+    if required["error"]:
+        lines.append(f"required checks: unavailable ({required['error']})")
+    else:
+        lines.append(f"required checks: {len(required['items'])}")
+        lines += [f"  {check['name']}: {check['state']}" for check in required["items"]]
+    open_threads = [thread for thread in snapshot["threads"] if not thread["isResolved"] and not thread["isOutdated"]]
+    lines.append(f"unresolved threads: {len(open_threads)}")
+    for thread in open_threads:
+        root, *replies = thread["comments"]["nodes"]
+        first_line = next((line.strip() for line in (root.get("body") or "").splitlines() if line.strip()), "")
+        lines.append(f"  {thread['id']} {thread['path']}:{thread['line'] or thread['originalLine'] or '?'} {root['author']}: "
+                     f"{first_line[:200]} ({len(replies)} replies)")
+    def tally(key):
+        authors = Counter(item["author"] for item in snapshot[key])
+        return f"{key}: {len(snapshot[key])} ({', '.join(f'{author} x{count}' for author, count in authors.items())})"
+    lines.append(tally("reviews"))
+    for review in snapshot["reviews"]:
+        actionable = re.search(r"Actionable comments posted: \d+", review.get("body") or "")
+        if actionable and (review["author"] or "").endswith("[bot]"):
+            lines.append(f"  {review['id']} {review['author']}: {actionable.group()}")
+    lines.append(tally("conversation_comments"))
+    return "\n".join(lines)
+
+
 def emit(value):
     print(json.dumps(value, ensure_ascii=True), flush=True)
 
@@ -153,6 +183,7 @@ def main():
     remote = commands.add_parser("pr", help="PR snapshot")
     remote.add_argument("--repo", required=True, help="OWNER/REPO on the gh-configured host")
     remote.add_argument("--pr", required=True, type=int)
+    remote.add_argument("--summary", action="store_true", help="Plain-text digest instead of JSON")
     args = parser.parse_args()
     try:
         os.chdir(args.cwd)
@@ -161,7 +192,11 @@ def main():
         else:
             if len(args.repo.split("/")) != 2 or any(not part or part.startswith("-") for part in args.repo.split("/")) or args.pr < 1:
                 raise ValueError("Expected OWNER/REPO and a positive PR number")
-            emit(pr(args.repo, args.pr))
+            snapshot = pr(args.repo, args.pr)
+            if args.summary:
+                print(summary(snapshot), flush=True)
+            else:
+                emit(snapshot)
         return 0
     except (OSError, RuntimeError, ValueError, subprocess.TimeoutExpired) as error:
         emit({"event": "error", "message": str(error)})
