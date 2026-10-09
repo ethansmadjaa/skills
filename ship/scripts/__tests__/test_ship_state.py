@@ -70,6 +70,7 @@ class ShipStateTest(unittest.TestCase):
         self.assertEqual(result["threads"], fixture["threads"])
         self.assertEqual(result["reviews"], fixture["reviews"])
         self.assertEqual(result["conversation_comments"], fixture["conversation_comments"])
+        self.assertFalse(result["coderabbit_in_progress"])
         comments = result["threads"][0]["comments"]["nodes"]
         self.assertEqual(len(comments), 3)
         self.assertIn("Guard the URL construction", comments[0]["body"])
@@ -118,6 +119,19 @@ class ShipStateTest(unittest.TestCase):
         ])
         snapshot["required_checks"] = {"items": None, "error": "no required checks reported"}
         self.assertIn("required checks: unavailable (no required checks reported)", state.summary(snapshot))
+
+    def test_summary_flags_coderabbit_review_in_progress_and_skips_its_placeholder(self):
+        placeholder = {"id": 9, "author": "coderabbitai[bot]",
+                       "body": "<!-- This is an auto-generated comment: review in progress by coderabbit.ai -->\n\nCurrently processing"}
+        human = {"id": 10, "author": "pr-author", "body": "Ready for review"}
+        snapshot = {"headRefOid": "abc123", "state": "OPEN", "reviewDecision": None,
+                    "required_checks": {"items": [], "error": None}, "threads": [], "reviews": [],
+                    "conversation_comments": [placeholder, human]}
+        lines = state.summary(snapshot).splitlines()
+        self.assertIn("conversation_comments: 1 (pr-author x1)", lines)
+        self.assertEqual(lines[-1], "coderabbit: review in progress")
+        snapshot["conversation_comments"] = [human]
+        self.assertNotIn("coderabbit: review in progress", state.summary(snapshot))
 
     def test_head_race_is_an_error(self):
         pages = [{"data": {"repository": {"pullRequest": {"headRefOid": head}}}} for head in ("old", "new")]

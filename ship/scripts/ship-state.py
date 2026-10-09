@@ -122,6 +122,7 @@ def pr(repo, number):
     result = {key: value for key, value in snapshots[0].items() if key != "reviewThreads"}
     result["threads"] = sorted([t for p in snapshots for t in p["reviewThreads"]["nodes"]], key=lambda t: t["id"])
     result.update(feedback(repo, number, result["threads"]))
+    result["coderabbit_in_progress"] = any(is_coderabbit_in_progress(c) for c in result["conversation_comments"])
     for key, flags in (("checks", []), ("required_checks", ["--required"])):
         response = run("gh", "pr", "checks", str(number), "--repo", repo, *flags,
                        "--json", "name,state,bucket,link,workflow", optional=True)
@@ -142,6 +143,14 @@ def pr(repo, number):
     return result
 
 
+CODERABBIT_IN_PROGRESS = "<!-- This is an auto-generated comment: review in progress by coderabbit.ai -->"
+
+
+def is_coderabbit_in_progress(comment):
+    """CodeRabbit's placeholder comment, later edited into its summary: not feedback yet."""
+    return CODERABBIT_IN_PROGRESS in (comment.get("body") or "")
+
+
 def summary(snapshot):
     """Plain-text first read of a pr snapshot; full bodies stay in the JSON."""
     lines = [f"head {snapshot['headRefOid']} state {snapshot['state']} review {snapshot['reviewDecision'] or 'none'}"]
@@ -158,15 +167,18 @@ def summary(snapshot):
         first_line = next((line.strip() for line in (root.get("body") or "").splitlines() if line.strip()), "")
         lines.append(f"  {thread['id']} {thread['path']}:{thread['line'] or thread['originalLine'] or '?'} {root['author']}: "
                      f"{first_line[:200]} ({len(replies)} replies)")
-    def tally(key):
-        authors = Counter(item["author"] for item in snapshot[key])
-        return f"{key}: {len(snapshot[key])} ({', '.join(f'{author} x{count}' for author, count in authors.items())})"
-    lines.append(tally("reviews"))
+    def tally(key, items):
+        authors = Counter(item["author"] for item in items)
+        return f"{key}: {len(items)} ({', '.join(f'{author} x{count}' for author, count in authors.items())})"
+    lines.append(tally("reviews", snapshot["reviews"]))
     for review in snapshot["reviews"]:
         actionable = re.search(r"Actionable comments posted: \d+", review.get("body") or "")
         if actionable and (review["author"] or "").endswith("[bot]"):
             lines.append(f"  {review['id']} {review['author']}: {actionable.group()}")
-    lines.append(tally("conversation_comments"))
+    comments = [comment for comment in snapshot["conversation_comments"] if not is_coderabbit_in_progress(comment)]
+    lines.append(tally("conversation_comments", comments))
+    if len(comments) < len(snapshot["conversation_comments"]):
+        lines.append("coderabbit: review in progress")
     return "\n".join(lines)
 
 
