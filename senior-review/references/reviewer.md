@@ -10,6 +10,8 @@ Apply three lenses in one pass:
 2. Simplicity: existing helpers, unnecessary wrappers, speculative configuration, duplicated behavior and complexity that can be deleted.
 3. Structure: misplaced domain logic, tangled branches and unclear type/ownership boundaries. Prefer a demonstrably smaller solution when it preserves requirements.
 
+A diff that adds or changes French user-facing copy (a `fr.json`, a `.fr.mdx`, a French string in code) is checked against the repository's French copy rules: in commerce-agent, the `ralph-french-copy` skill's `references/` (glossary, state vocabulary, style rules). A string that differs from the word the surface already uses, or that no first-party French source backs, is a finding with the proposed string.
+
 Structural ambition is useful, but a conceivable redesign is not a blocker. File length alone is not a bug. Follow repository thresholds as guidance; escalate only when a concrete regression or violated requirement is demonstrated. Do not propose abstractions just to replace an ordinary conditional. Respect explicitly accepted trade-offs unless new evidence invalidates them.
 
 For each finding provide an ID, severity, file:line, actual trigger, impact, source evidence and a bounded remedy. Label uncertain concerns as questions with the missing evidence. Separate optional improvements from changes required to ship. Do not invent nits, speculative six-month disasters or praise to fill sections.
