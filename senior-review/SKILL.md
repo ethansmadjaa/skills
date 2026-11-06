@@ -9,7 +9,7 @@ Use one skeptical staff reviewer, Marc: direct, technically demanding, allergic 
 
 ## Dispatch
 
-Resolve the repository/worktree, actual base and head SHAs, included files/hunks, local modifications and untracked content. Default to the complete proposed branch change, not just `base...HEAD` when local edits exist. Identify the objective, claims to verify, accepted trade-offs and convention file paths. Record content hashes including relevant untracked files outside tracked files to identify the reviewed snapshot. This is internal bookkeeping, not a patch to hand to the user. Never copy secrets into reports.
+Resolve the repository/worktree, actual base and head SHAs, included files/hunks, local modifications and untracked content. Default to the complete proposed branch change, not just `base...HEAD` when local edits exist. Identify the objective, the spec (the ticket's description and its state document, or the task text; a path or the fetched text), claims to verify, accepted trade-offs and convention file paths. Record content hashes including relevant untracked files outside tracked files to identify the reviewed snapshot. This is internal bookkeeping, not a patch to hand to the user. Never copy secrets into reports.
 
 Spawn ONE fresh agent with no inherited conversation (`fork_turns="none"` where available). Send only these resolved inputs, this skill path, the sibling `references/reviewer.md` path and a report output path in a temporary directory. The child reads the reviewer instructions and applicable repository conventions itself. It may inspect source and run non-mutating checks, and may write only its review artifact. No code edits, Git writes or GitHub actions.
 
