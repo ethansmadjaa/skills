@@ -1,9 +1,12 @@
+<!doctype html>
 <!-- grill-form template — DO NOT edit or publish directly.
      Run: python3 generate.py <config.json> <output.html>
      The generator fills the title tag and the CONFIG constant; everything else
      (CSS, rendering, persistence, copy logic) is fixed.
-     No <!doctype>/<html>/<head>/<body> — the Artifact publisher wraps the file.
-     No external resources (CSP blocks CDNs). -->
+     It must run in the Orca inline frame (opaque origin): localStorage and
+     navigator.clipboard throw there. One script block, no module, no external
+     resource, no network call, nothing sized to the viewport. ./check.sh proves it. -->
+<meta charset="utf-8" />
 <title>__TITLE__</title>
 <style>
   :root {
@@ -315,14 +318,14 @@
       Copier le prompt agent
     </button>
     <span class="status" id="status"></span>
-    <span class="hint">Réponses conservées dans ce navigateur</span>
+    <span class="hint" id="hint">Réponses conservées dans ce navigateur</span>
   </div>
 </main>
 
 <script>
   // Injected by generate.py — { title, eyebrow, heading, lede, storeKey,
-  // promptTitle, promptContext, questions: [{ id, title, body, reco,
-  // multi?: true, options: [{ v, label, reco?: true }] }] }
+  // questions: [{ id, title, body, reco, multi?: true,
+  // options: [{ v, label, reco?: true }] }] }
   const CONFIG = "__CONFIG_JSON__";
 
   const QUESTIONS = CONFIG.questions;
@@ -373,6 +376,9 @@
   const container = document.getElementById("questions");
   const statusEl = document.getElementById("status");
 
+  // The Orca inline frame has an opaque origin: touching localStorage throws a
+  // SecurityError there. An uncaught throw here kills the script before the
+  // copy button gets its listener.
   function load() {
     try {
       return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
@@ -381,7 +387,12 @@
     }
   }
   function save(state) {
-    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    } catch {
+      document.getElementById("hint").textContent =
+        "Réponses non conservées ici : copie-les avant de fermer";
+    }
   }
   let state = load();
 
@@ -389,6 +400,15 @@
   function isPicked(q, v) {
     const choice = state[q.id]?.choice;
     return q.multi ? Array.isArray(choice) && choice.includes(v) : choice === v;
+  }
+
+  // Every option, "Other" last, in config order. Inputs are read back by id:
+  // getElementById is the one DOM query the check's fake frame provides.
+  function valuesOf(q) {
+    return [...q.options.map((o) => o.v), "__other__"];
+  }
+  function inputId(q, v) {
+    return `${q.id}-opt-${v}`;
   }
 
   for (const q of QUESTIONS) {
@@ -400,7 +420,7 @@
       .map(
         (o) => `
     <label class="opt">
-      <input type="${inputType}" name="${q.id}" value="${o.v}" ${isPicked(q, o.v) ? "checked" : ""}>
+      <input type="${inputType}" id="${inputId(q, o.v)}" name="${q.id}" value="${o.v}" ${isPicked(q, o.v) ? "checked" : ""}>
       <span>${inline(o.label)}${o.reco ? '<span class="tag">reco</span>' : ""}</span>
     </label>`,
       )
@@ -409,7 +429,7 @@
     card.innerHTML = `
     <div class="q-head">
       <span class="q-num">${q.id}</span>
-      <h2 class="q-title">${q.title}</h2>
+      <h2 class="q-title">${inline(q.title)}</h2>
     </div>
     <div class="q-body">${block(q.body)}</div>
     <div class="reco"><strong>➡️ Reco —</strong> ${block(q.reco)}</div>
@@ -417,7 +437,7 @@
       <legend>Ta réponse</legend>
       ${opts}
       <label class="opt">
-        <input type="${inputType}" name="${q.id}" value="__other__" ${isPicked(q, "__other__") ? "checked" : ""}>
+        <input type="${inputType}" id="${inputId(q, "__other__")}" name="${q.id}" value="__other__" ${isPicked(q, "__other__") ? "checked" : ""}>
         <span>Autre (détailler en note)</span>
       </label>
     </fieldset>
@@ -431,9 +451,9 @@
     state = {};
     let answered = 0;
     for (const q of QUESTIONS) {
-      const checked = [
-        ...document.querySelectorAll(`input[name="${q.id}"]:checked`),
-      ].map((i) => i.value);
+      const checked = valuesOf(q).filter(
+        (v) => document.getElementById(inputId(q, v)).checked,
+      );
       const notes = document.getElementById(`${q.id}-notes`).value.trim();
       state[q.id] = {
         choice: q.multi ? checked : (checked[0] ?? null),
@@ -450,12 +470,13 @@
   refresh();
 
   function labelFor(q, choice) {
-    if (choice === "__other__") return "Autre (voir note)";
+    if (choice === "__other__") return "Other (see note)";
     const o = q.options.find((o) => o.v === choice);
-    return o ? o.label + (o.reco ? " (la reco)" : "") : "";
+    if (!o) return "";
+    if (o.reco) return `${o.label} (recommended)`;
+    return o.label;
   }
 
-  // Config order, because the checked inputs are read in DOM order.
   function answerFor(q, choice) {
     const picks = Array.isArray(choice) ? choice : choice ? [choice] : [];
     return picks
@@ -464,22 +485,13 @@
       .join(", ");
   }
 
-  // Minimal : réponses + notes seulement. L'agent qui reprend tient les
-  // questions et les recos déjà (session d'origine ou ticket).
+  // Answers and notes only, no header: the agent that receives the block
+  // already holds the questions. Every question gets its line.
   function buildPrompt() {
-    const lines = [CONFIG.promptTitle, "", CONFIG.promptContext, ""];
+    const lines = [];
     for (const q of QUESTIONS) {
       const a = state[q.id] || {};
-      const answer = answerFor(q, a.choice);
-
-      // Sans option cochée, la note EST la réponse.
-      if (!answer) {
-        lines.push(
-          `- ${q.id} (${q.title}): ${a.notes || "— pas de choix coché —"}`,
-        );
-        continue;
-      }
-
+      const answer = answerFor(q, a.choice) || "- no option selected -";
       lines.push(`- ${q.id} (${q.title}): ${answer}`);
       if (a.notes) lines.push(`  Note: ${a.notes}`);
     }
@@ -489,19 +501,23 @@
   document.getElementById("copyBtn").addEventListener("click", async () => {
     refresh();
     const text = buildPrompt();
+    // writeText works in a real tab. The Orca inline frame rejects it with
+    // NotAllowedError, and there a selected textarea plus execCommand still works.
     try {
       await navigator.clipboard.writeText(text);
-      statusEl.textContent = "Prompt copié ✓";
-      statusEl.className = "status ok";
     } catch {
       const ta = document.createElement("textarea");
       ta.value = text;
       document.body.appendChild(ta);
       ta.select();
-      document.execCommand("copy");
+      const copied = document.execCommand("copy");
       ta.remove();
-      statusEl.textContent = "Prompt copié ✓";
-      statusEl.className = "status ok";
+      if (copied === false) {
+        statusEl.textContent = "Copie refusée par le navigateur";
+        return;
+      }
     }
+    statusEl.textContent = "Réponses copiées ✓ — colle-les dans le chat";
+    statusEl.className = "status ok";
   });
 </script>
