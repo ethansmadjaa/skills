@@ -20,6 +20,8 @@ Mirror of `ship`, at the other end of the task. **No git writes.** The worktree 
    - **Already done** (the code does what the ticket asks): say so with the commit or PR that did it, and stop.
    - **Current**: continue.
 
+   When the ticket stores data, draw the **data map** first: every table, item and platform field the feature and its sibling tickets already read or write, with what one row holds, and the new data placed on it. Search the repo for tables the parent's other children added. Every storage question (new table, new column, which store) shows the map in its text, so the user chooses with the whole picture.
+
    Then ask, with `AskUserQuestion`, one question, three options: **Build the proposed solution** (recommended when the design is precise), **Grill it first** (when a decision is still open), **Something else**. On _Build_: hand back with the plan in three lines, do not start coding inside the skill.
 
 5. **No context — grill with docs.** Invoke `mattpocock-skills:grilling`. Facts are yours to find, never the user's: use the evidence already collected, then fill only gaps that block a decision. A round of more than four questions goes through `grill-form`. Grill until the frontier is empty, then:
