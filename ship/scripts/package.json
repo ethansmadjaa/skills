@@ -1,0 +1,8 @@
+{
+  "name": "ship-scripts",
+  "private": true,
+  "description": "added-style.mjs parses with its own TypeScript: TS 7 ships no JavaScript API, so a repo's own install cannot be borrowed.",
+  "dependencies": {
+    "typescript": "6.0.3"
+  }
+}
